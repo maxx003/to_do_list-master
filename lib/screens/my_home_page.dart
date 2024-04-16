@@ -55,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Create an empty list to store the fetched tasks names
     List<String> fetchedTasks = [];
 
+
     // Look  through each doc (tasks) in the querySnapshot object
     for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
       // Getting the task name from the documents data
