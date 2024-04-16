@@ -44,6 +44,30 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> fetchTaskFromFirestore() async {
+    //Got a reference to the 'tasks' collection in Firestore
+
+    CollectionReference tasksCollection = db.collection('tasks');
+
+    // Fetch the document (tasks) from the collection
+    QuerySnapshot querySnapshot = await tasksCollection.get();
+
+    // Create an empty list to store the fetched tasks names
+    List<String> fetchedTasks = [];
+
+    // Look  through each doc (tasks) in the querySnapshot object
+    for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
+      // Getting the task name from the documents data
+      String taskName = docSnapshot.get('name');
+
+      // Getting the completion status of the task
+      bool completed = docSnapshot.get('completed');
+
+      // Add the task name to the list of gi fetched tasks
+      fetchedTasks.add(taskName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,6 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Icon(
                             !checkboxes[index]
@@ -146,6 +171,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 checkboxes[index] = newValue!;
                               });
                             },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: null,
                           ),
                         ],
                       ),
