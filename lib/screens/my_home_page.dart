@@ -55,7 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // Create an empty list to store the fetched tasks names
     List<String> fetchedTasks = [];
 
-
     // Look  through each doc (tasks) in the querySnapshot object
     for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
       // Getting the task name from the documents data
@@ -64,9 +63,53 @@ class _MyHomePageState extends State<MyHomePage> {
       // Getting the completion status of the task
       bool completed = docSnapshot.get('completed');
 
-      // Add the task name to the list of gi fetched tasks
+      // Add the task name to the list of fetched tasks
       fetchedTasks.add(taskName);
     }
+
+    // Upadte the state to reflect the fetched tasks
+
+    setState(() {
+      tasks.clear(); // Clear the existing task list
+      tasks.addAll(fetchedTasks);
+    });
+  }
+
+  // Asynchronous function to update the completion status  of the task in Firestore
+  Future<void> updateTaskCompletionStatus(
+      String taskName, bool completed) async {
+    //Got a reference to the 'tasks' collection in Firestore
+    CollectionReference tasksCollection = db.collection('tasks');
+
+    // Query Firestore for documents (tasks) with the given task name
+    QuerySnapshot querySnapshot =
+        await tasksCollection.where('name', isEqualTo: taskName).get();
+
+    // If a matching task document is found
+    if (querySnapshot.size > 0) {
+      //Get a reference to the first matching document
+      DocumentSnapshot documentSnapshot = querySnapshot.docs[0];
+
+      //Update the completion field to the new completion status
+      await documentSnapshot.reference.update({'completed': completed});
+    }
+
+    setState(() {
+      //find index of the task in the task list
+      int taskIndex = tasks.indexWhere((task) => task == taskName);
+
+      // Update the corresponding checkbox value in the checkboxes list
+      checkboxes[taskIndex] = completed;
+    });
+  }
+
+// Override the initState method of the State class
+  @override
+  void initState() {
+    super.initState();
+
+    //Call the function to fetched the tasks from the database
+    fetchTaskFromFirestore();
   }
 
   @override
